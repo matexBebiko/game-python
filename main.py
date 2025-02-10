@@ -31,28 +31,26 @@ def get_spin_machine(rows, cols, symbols):
     return columns
 
 def print_machine(columns):
-    for row in range(len(columns)):
+    for row in range(len(columns[0])):  # Ensure the loop runs for the rows (not columns)
         for i, column in enumerate(columns):
-            if i != len(columns)-1:
+            if i != len(columns) - 1:
                 print(column[row], end=" | ")
             else:
                 print(column[row], end="")
         print()
 
 def check_win(columns, lines, bet, values):
-    winn = 0
-    winn_lines = []
+    win = 0
+    win_lines = []
     for line in range(lines):
         symbol = columns[0][line]
         for column in columns:
-            symbol_to_check = columns[line]
-            if symbol != symbol_to_check:
+            if column[line] != symbol:
                 break
-            else:
-                winn += values[symbol]*bet
-                winn_lines.append(line +1)
-    return winn, winn_lines
-
+        else:
+            win += values[symbol] * bet
+            win_lines.append(line + 1)
+    return win, win_lines
 
 def deposit():
     while True:
@@ -69,7 +67,7 @@ def deposit():
 
 def liczba_wierszy():
     while True:
-        lines = input("Podaj liczbę lini na które chcessz podstawić (1-"+str(MAX_LINES) + "):")
+        lines = input("Podaj liczbę lini na które chcesz postawić (1-" + str(MAX_LINES) + "):")
         if lines.isdigit():
             lines = int(lines)
             if 1 <= lines <= MAX_LINES:
@@ -85,7 +83,7 @@ def get_bet():
         bet = input("Podaj ile chcesz postawić $ ? $")
         if bet.isdigit():
             bet = int(bet)
-            if MIN_BET <= bet <=MAX_BET:
+            if MIN_BET <= bet <= MAX_BET:
                 break
             else:
                 print(f"Twoj bet musi mieć wartośc miedzy {MIN_BET}, a {MAX_BET}")
@@ -93,25 +91,11 @@ def get_bet():
             print("Podaj liczbe")
     return bet
 
-
-
-def main():
-    balance = deposit()
-    while True:
-        print(f"Bieżacy stan konta: ${balance}")
-        spin = input("Klinij enter aby zagrać (q aby skończyć)")
-        if spin == "q":
-            break
-        balance += game()
-    print(f"Skonczyłeś na dziś twoja wygrana to ${balance}")
-main()
-
-def game():
-    balance = deposit()
+def game(balance):
     lines = liczba_wierszy()
     while True:
         bet = get_bet()
-        total_bet = bet*lines
+        total_bet = bet * lines
         if balance < total_bet:
             print("Masz za mało pieniędzy")
         else:
@@ -119,7 +103,19 @@ def game():
     print(f"Postawiłeś ${bet} na {lines} linie, twój całkowity zakład wynosi {total_bet}")
     slots = get_spin_machine(ROWS, COLS, symbol_count)
     print_machine(slots)
-    winn, winn_lines = check_win(slots, lines, bet, symbol_count)
-    print(f"Twoja wygrana to: ${winn}")
-    print(f"Wygrałeś na {winn_lines} linii")
-    return winn_lines - total_bet
+    win, win_lines = check_win(slots, lines, bet, symbol_count)
+    print(f"Twoja wygrana to: ${win}")
+    print(f"Wygrałeś na {win_lines} linii")
+    return win - total_bet
+
+def main():
+    balance = deposit()
+    while True:
+        print(f"Bieżacy stan konta: ${balance}")
+        spin = input("Klinij enter aby zagrać (q aby skończyć): ")
+        if spin == "q":
+            break
+        balance += game(balance)
+    print(f"Skonczyłeś na dziś twoja wygrana to ${balance}")
+
+main()
