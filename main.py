@@ -1,11 +1,11 @@
 import random
 
-MAX_LINES = 3
-MAX_BET = 100
+MAX_LINES = 30
+MAX_BET = 1000
 MIN_BET = 5
 
-ROWS = 3
-COLS = 3
+ROWS = 3  # Zmniejszenie liczby wierszy
+COLS = 3  # Zmniejszenie liczby kolumn
 
 symbol_count = {
     "♤": 2,
@@ -42,7 +42,8 @@ def print_machine(columns):
 def check_win(columns, lines, bet, values):
     win = 0
     win_lines = []
-    for line in range(lines):
+    # Upewniamy się, że line nie przekracza liczby dostępnych wierszy
+    for line in range(min(lines, ROWS)):  # Ograniczanie do ROWS
         symbol = columns[0][line]
         for column in columns:
             if column[line] != symbol:
@@ -55,6 +56,9 @@ def check_win(columns, lines, bet, values):
 def deposit():
     while True:
         kaska = input("Za ile chcesz zagrać?: $")
+        if kaska == 'q':  # Dodanie opcji wyjścia
+            print("Kończysz grę.")
+            exit()  # Zakończenie programu
         if kaska.isdigit():
             kaska = int(kaska)
             if kaska > 0:
@@ -67,10 +71,13 @@ def deposit():
 
 def liczba_wierszy():
     while True:
-        lines = input("Podaj liczbę lini na które chcesz postawić (1-" + str(MAX_LINES) + "):")
+        lines = input("Podaj liczbę lini na które chcesz postawić (1-" + str(min(MAX_LINES, ROWS)) + "): ")  # Ograniczenie linii do ROWS
+        if lines == 'q':  # Dodanie opcji wyjścia
+            print("Kończysz grę.")
+            exit()  # Zakończenie programu
         if lines.isdigit():
             lines = int(lines)
-            if 1 <= lines <= MAX_LINES:
+            if 1 <= lines <= min(MAX_LINES, ROWS):  # Ograniczenie linii do ROWS
                 break
             else:
                 print("Podaj prawidłową liczbą linii")
@@ -81,6 +88,9 @@ def liczba_wierszy():
 def get_bet():
     while True:
         bet = input("Podaj ile chcesz postawić $ ? $")
+        if bet == 'q':  # Dodanie opcji wyjścia
+            print("Kończysz grę.")
+            exit()  # Zakończenie programu
         if bet.isdigit():
             bet = int(bet)
             if MIN_BET <= bet <= MAX_BET:
@@ -98,6 +108,8 @@ def game(balance):
         total_bet = bet * lines
         if balance < total_bet:
             print("Masz za mało pieniędzy")
+            if balance == 0:
+                print("Masz $0")
         else:
             break
     print(f"Postawiłeś ${bet} na {lines} linie, twój całkowity zakład wynosi {total_bet}")
